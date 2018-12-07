@@ -1,7 +1,12 @@
 <?php 
-print_r($_POST);
-// if (isset($_POST['Name'])){
-// echo "Мое имя " . $_POST['Name'];
+//print_r($_POST);
+if (isset($_POST['Name'])){
+$nameFilter = htmlspecialchars(mb_strtolower(trim($_POST['Name'])),ENT_QUOTES, "UTF-8");
+echo "Мое имя " . $nameFilter;
+echo $_POST['text'];
+
+$str = "<br>" . wordwrap($_POST['text'], 10, "<br>", true);
+echo $str;
 }
 
 
