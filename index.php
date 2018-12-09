@@ -7,9 +7,19 @@ function summary($a, $b){
 		$result = $a + $b;
 	}
 	return $result;
-
 	}
-echo summary(3, 5);
+
+function checkSumm($sum) {
+	$result = "";
+	if ($sum > 30) {
+		$result = "Сумма больше 30";
+	} else {
+		$result = "Сумма меньше 30";
+	}
+	return $result;
+	}
+
+echo checkSumm(summary(30, 5));
 
 
 ?>
