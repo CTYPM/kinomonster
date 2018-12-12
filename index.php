@@ -1,25 +1,18 @@
 <?php 
-function summary($a, $b){
-	$result = "";
-	if(!is_numeric($a) || !is_numeric($b)) {
-		$result = "Заданы неверные данные";
-	} else {
-		$result = $a + $b;
-	}
-	return $result;
+	$mysqli = new mysqli('localhost', 'root', '', 'kinomonster');
+
+	if(mysqli_connect_errno()) {
+		printf('Соединение не установлено, ', mysqli_connect_error());
+		exit();
 	}
 
-function checkSumm($sum) {
-	$result = "";
-	if ($sum > 30) {
-		$result = "Сумма больше 30";
-	} else {
-		$result = "Сумма меньше 30";
-	}
-	return $result;
+	$mysqli -> set_charset('utf8');
+
+	$query = $mysqli -> query('SELECT * FROM movie');
+
+	while ($row = mysqli_fetch_assoc($query)) {
+		echo $row['name']." ".$row['year']. "<br>";
 	}
 
-echo checkSumm(summary(30, 5));
-
-
+	$mysqli ->close();
 ?>
