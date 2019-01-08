@@ -1,60 +1,115 @@
-<?php 
+<?php
 
-$mysqli = new mysqli('localhost', 'root', '', 'kinomonster');
+// Функции
 
-if (mysqli_connect_errno()){
-	printf('Соединение не установлено, ошибка: ' . mysqli_connect_error());
-	exit();
+function insert($name, $desc, $year, $rating, $poster, $category_id) {
+	$mysqli = new mysqli('localhost', 'root', '', 'kinomonster');
+
+	if (mysqli_connect_errno()) {
+		print_f('Connection Error');
+		exit();
+	}
+
+	$mysqli ->set_charset('utf8');
+
+	$query = "INSERT INTO movie VALUES(null, '$name', '$desc', '$year', '$rating', '$poster', Now(), '$category_id')";
+
+	$mysqli->query($query);
+
+	$mysqli->close();
 }
 
-$mysqli -> set_charset('utf8');
+function xmlProc($xml, $type){
+
+$title = null;
+$tittle_origin = null;
+$year = null;
+$rating = null;
+$post = null;
+
+foreach ($xml as $movie_key => $movie) {
+	$title = $movie->title_russian;
+	$title_origin = $movie ->title_original;
+	$year = $movie->year;
 
 
-// if (isset($_POST['name'])){
+	foreach ($movie->poster->big->attributes() as $poster_key => $poster) {
+		$post = $poster;
+	}
 
-// $query = "INSERT INTO movie VALUES(null, '" . $_POST['name'] . "', '" . $_POST['description'] . "', '" . $_POST['year'] . "', Now())";
+	if ($movie->imdb){
+		$rating = $movie->imdb->attributes()['rating'];
+	} else {
+		$rating = null;
+	}
 
-// $mysqli ->query($query);
-// }
-
-// $mysqli ->query("UPDATE movie SET year = '2006' WHERE id = '4'");
-
-
-
-$query = $mysqli -> query("SELECT * FROM `movie` LEFT JOIN categories ON movie.category_id = categories.id");
-
-while($row = mysqli_fetch_assoc($query)) {
-	echo $row['name'] . " " . $row['year'] . " " . $row['cat_name'] . "<br>";
+	insert($title, $title_origin, $year, $rating, $post, $type);
+}
 }
 
+function delSQL() {
+	$mysqli = new mysqli('localhost', 'root', '', 'kinomonster');
+	
+	if (mysqli_connect_errno()) {
+		print_f('Connection Error');
+		exit();
+	}		
+	$mysqli ->query("truncate movie");
+	$mysqli->close();
+}
+
+function drawTable() {
+	$mysqli = new mysqli('localhost', 'root', '', 'kinomonster');
+
+	if (mysqli_connect_errno()) {
+		print_f('Connection Error');
+		exit();
+	}
+
+	$mysqli ->set_charset('utf8');
+
+	$query = $mysqli->query("SELECT * FROM movie INNER JOIN categories ON movie.category_id = categories.id");
+
+	echo '<style type="text/css">table {border-collapse: collapse;}</style>';
+
+	echo '<table border="1" cellpadding="7">';
+	echo "<tr><b>";
+	echo "<th>№</th><th>Наименование</th><th>Описание</th><th>Год</th><th>Рейтинг</th><th>Тип</th>";
+	echo "</b></tr>";
+
+	while ($row = mysqli_fetch_assoc($query)){
+		echo '<tr align="center">';
+		echo "<td>".$row['id']."</td>";
+		echo "<td>".$row['name']."</td>";
+		echo "<td>".$row['description']."</td>";
+		echo "<td>".$row['year']."</td>";
+		echo "<td>".$row['raiting']."</td>";
+		echo "<td>".$row['cat_name']."</td>";
+		echo "</tr>";
+	}
+
+	echo "</table>";
+	$mysqli -> close();
+}
+
+// Начало программы
+
+delSQL();
+
+$xmlFile = simplexml_load_file("xml_files\movies.xml") or die("Error: Cannot creat object");
+xmlProc($xmlFile, 1);
+
+$xmlFile = simplexml_load_file("xml_files\serials.xml") or die("Error: Cannot creat object");
+xmlProc($xmlFile, 2);
+
+drawTable();
 
 
 
 
-$mysqli -> close();
 
-
+// echo "<pre>";
+// print_r($xmlFile);
+// echo "</pre>";
 
 ?>
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>Document</title>
-</head>
-<body>
-	<form action="/" method="post">
-		<input type="text" name="name" placeholder="Название фильма">
-		<br>
-		<textarea style = "width: 167px" name="description" placeholder="Описание фильма"></textarea>
-		<br>
-		<input type="number" name="year" placeholder="Год выпуска">
-		<br>
-		<input type="submit" value="Отправить">
-	</form>
-
-
-
-</body>
-</html> -->
