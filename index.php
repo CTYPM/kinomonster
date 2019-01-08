@@ -27,6 +27,8 @@ $year = null;
 $rating = null;
 $post = null;
 
+$file = fopen('log.txt', 'a');
+
 foreach ($xml as $movie_key => $movie) {
 	$title = $movie->title_russian;
 	$title_origin = $movie ->title_original;
@@ -44,7 +46,13 @@ foreach ($xml as $movie_key => $movie) {
 	}
 
 	insert($title, $title_origin, $year, $rating, $post, $type);
+
+	$string = "строка '". $title . "' успешно записана.\r\n";
+
+	fwrite($file, $string);
 }
+	fclose($file);
+
 }
 
 function delSQL() {
@@ -54,8 +62,8 @@ function delSQL() {
 		print_f('Connection Error');
 		exit();
 	}		
-	$mysqli ->query("truncate movie");
-	$mysqli->close();
+	$mysqli -> query("truncate movie");
+	$mysqli -> close();
 }
 
 function drawTable() {
@@ -68,7 +76,7 @@ function drawTable() {
 
 	$mysqli ->set_charset('utf8');
 
-	$query = $mysqli->query("SELECT * FROM movie INNER JOIN categories ON movie.category_id = categories.id");
+	$query = $mysqli->query("SELECT * FROM movie INNER JOIN categories ON movie.category_id = categories.cat_id");
 
 	echo '<style type="text/css">table {border-collapse: collapse;}</style>';
 
